@@ -1,0 +1,95 @@
+.sidebar {
+  width: 250px;
+  background: #1f2937;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid #374151;
+}
+
+.sidebar-menu {
+  padding: 10px 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+}
+
+.menu-item:hover {
+  background: #374151;
+  color: #fff;
+}
+
+.menu-item.active {
+  background: #ec4899;
+  color: #fff;
+}
+
+.menu-item-group {
+  margin-bottom: 5px;
+}
+
+.submenu {
+  background: #111827;
+  animation: slideDown 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 200px;
+  }
+}
+
+.submenu-item {
+  display: block;
+  padding: 10px 20px 10px 52px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+}
+
+.submenu-item:hover {
+  background: #374151;
+  color: #fff;
+}
+
+.submenu-item.active {
+  background: #ec4899;
+  color: #fff;
+}
+
+.menu-item.logout {
+  margin-top: 20px;
+  border-top: 1px solid #374151;
+  padding-top: 20px;
+}
+
+.menu-item.logout:hover {
+  background: #dc2626;
+  color: #fff;
+}
+
+.flex-1 {
+  flex: 1;
+}
