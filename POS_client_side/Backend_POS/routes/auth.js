@@ -6,10 +6,10 @@ const bcrypt = require("bcryptjs");
 //! register
 router.post("/register", async (req, res) => {
   try {
-    const { userName, email, password } = req.body;
+    const { userName, email, password, role } = req.body;
     const salt = await bcrypt.genSaltSync(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const newUser = new User({ userName, email, password: hashedPassword });
+    const newUser = new User({ userName, email, password: hashedPassword, role: role || "cashier" });
     await newUser.save();
     res.status(200).json("A new user created successfully");
   } catch (error) {
@@ -21,15 +21,9 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
-    if (!user) {
-      return res.status(404).json({ error: "User not found!" });
-    }
+    if (!user) return res.status(404).json({ error: "User not found!" });
 
-    const validPassword = await bcrypt.compare(
-      req.body.password,
-      user.password
-    );
-
+    const validPassword = await bcrypt.compare(req.body.password, user.password);
     if (!validPassword) {
       res.status(403).json({ error: "Invalid Password!" });
     } else {
@@ -37,6 +31,7 @@ router.post("/login", async (req, res) => {
         _id: user._id,
         userName: user.userName,
         email: user.email,
+        role: user.role,
       });
     }
   } catch (error) {

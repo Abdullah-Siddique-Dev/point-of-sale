@@ -10,17 +10,17 @@ const CreateInvoice = ({ isModalOpen, setIsModalOpen }) => {
 
   const onFinish = async (values) => {
     try {
+      const orderId = "ORD-" + Date.now();
       var res = await fetch(
         process.env.REACT_APP_SERVER_URL + "/api/invoices/add-invoice",
         {
           method: "POST",
           body: JSON.stringify({
             ...values,
+            orderId,
             subTotal: cart?.total?.toFixed(2),
             tax: ((cart.total * cart.tax) / 100).toFixed(2),
-            totalAmount: (cart.total + (cart.total * cart.tax) / 100).toFixed(
-              2
-            ),
+            totalAmount: (cart.total + (cart.total * cart.tax) / 100).toFixed(2),
             cartItems: cart.cartItems,
           }),
           headers: { "Content-type": "application/json; charset=UTF-8" },

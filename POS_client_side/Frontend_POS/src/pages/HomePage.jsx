@@ -3,7 +3,7 @@ import CartTotals from "../components/cart/CartTotals";
 import Sidebar from "../components/sidebar/Sidebar";
 import Products from "../components/products/Products";
 import { Spin, Select, Input } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, UserOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -13,6 +13,7 @@ function HomePage() {
   const [filtered, setFiltered] = useState([]);
   const [searched, setSearched] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const user = JSON.parse(localStorage.getItem("postUser"));
 
   useEffect(() => {
     const getCategories = async () => {
@@ -38,59 +39,67 @@ function HomePage() {
   }, [selectedCategory, products]);
 
   return (
-    <div className="flex">
+    <div className="flex bg-gray-100 min-h-screen">
       <Sidebar />
-      <div className="main-content" style={{ marginLeft: "250px", width: "calc(100% - 250px)" }}>
-        <div className="top-bar bg-white border-b p-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Point of Sale (POS)</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-gray-600">Admin</span>
+      <div style={{ marginLeft: "220px", width: "calc(100% - 220px)" }}>
+        {/* Top Bar */}
+        <div className="bg-white border-b px-6 py-3 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+          <h1 className="text-xl font-bold text-gray-800">Point of Sale (POS)</h1>
+          <div className="flex items-center gap-2 text-gray-600">
+            <UserOutlined />
+            <span className="text-sm font-medium">{user?.username || "Admin"}</span>
           </div>
         </div>
-        
-        {products && categories.length > 0 ? (
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Point of Sale (POS)</h2>
-            
-            <div className="flex gap-10">
-              <div className="flex-1">
-                <div className="filters flex gap-4 mb-6">
-                  <Select
-                    defaultValue="All"
-                    style={{ width: 200 }}
-                    onChange={(value) => setSelectedCategory(value)}
-                  >
-                    {categories.map((cat) => (
-                      <Option key={cat._id} value={cat.title}>
-                        {cat.title}
-                      </Option>
-                    ))}
-                  </Select>
-                  
-                  <Input
-                    placeholder="Search by product name"
-                    prefix={<SearchOutlined />}
-                    style={{ width: 300 }}
-                    onChange={(e) => setSearched(e.target.value.toLowerCase())}
-                  />
-                </div>
 
-                <Products
-                  products={products}
-                  setProducts={setProducts}
-                  filtered={filtered}
-                  searched={searched}
+        <div className="p-5">
+          <div className="flex gap-5 h-[calc(100vh-70px)]">
+            {/* Products Section */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {/* Filters */}
+              <div className="flex gap-3 mb-4">
+                <Select
+                  defaultValue="All"
+                  style={{ width: 180 }}
+                  onChange={(value) => setSelectedCategory(value)}
+                  size="middle"
+                >
+                  {categories.map((cat) => (
+                    <Option key={cat._id} value={cat.title}>
+                      {cat.title}
+                    </Option>
+                  ))}
+                </Select>
+                <Input
+                  placeholder="Search by product name"
+                  prefix={<SearchOutlined className="text-gray-400" />}
+                  style={{ flex: 1 }}
+                  onChange={(e) => setSearched(e.target.value.toLowerCase())}
                 />
               </div>
 
-              <div className="cart-section" style={{ minWidth: "350px" }}>
-                <CartTotals />
+              {/* Products Grid */}
+              <div className="flex-1 overflow-y-auto">
+                {categories.length > 0 ? (
+                  <Products
+                    products={products}
+                    setProducts={setProducts}
+                    filtered={filtered}
+                    searched={searched}
+                  />
+                ) : (
+                  <div className="flex justify-center items-center h-full">
+                    <Spin size="large" />
+                  </div>
+                )}
               </div>
             </div>
+
+            {/* Cart Section */}
+            <div className="w-80 flex-shrink-0">
+              <CartTotals />
+            </div>
           </div>
-        ) : (
-          <Spin size="large" className="absolute left-1/2 top-1/2" />
-        )}
+        </div>
       </div>
     </div>
   );

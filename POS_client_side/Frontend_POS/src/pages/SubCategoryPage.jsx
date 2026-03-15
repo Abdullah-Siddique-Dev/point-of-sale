@@ -1,91 +1,81 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar/Sidebar";
-import { Table, Spin, Switch, Tag } from "antd";
+import { Table, Spin, Tag, Button, Popconfirm, message } from "antd";
+import { UserOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 const SubCategoryPage = () => {
-  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const user = JSON.parse(localStorage.getItem("postUser"));
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const getCategories = async () => {
-      try {
-        const res = await fetch(
-          process.env.REACT_APP_SERVER_URL + "/api/categories/get-all"
-        );
-        const data = await res.json();
-        setCategories(data);
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-        setLoading(false);
+  const fetchSubCategories = async () => {
+    try {
+      const res = await fetch(process.env.REACT_APP_SERVER_URL + "/api/subcategories/get-all");
+      const data = await res.json();
+      setSubCategories(data);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchSubCategories(); }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(process.env.REACT_APP_SERVER_URL + "/api/subcategories/delete-subcategory", {
+        method: "DELETE",
+        body: JSON.stringify({ subCategoryId: id }),
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+      });
+      if (res.status === 200) {
+        message.success("Sub category deleted!");
+        fetchSubCategories();
       }
-    };
-    getCategories();
-  }, []);
+    } catch (error) {
+      message.error("Delete failed!");
+    }
+  };
 
   const columns = [
+    { title: "SL", key: "index", render: (_, __, index) => index + 1, width: 60 },
+    { title: "Sub Category Name", dataIndex: "title", key: "title" },
+    { title: "Parent Category", dataIndex: "categoryName", key: "categoryName", render: (text) => <Tag color="blue">{text}</Tag> },
+    { title: "Created At", dataIndex: "createdAt", key: "createdAt", render: (text) => text?.substring(0, 10) },
     {
-      title: "SL",
-      dataIndex: "index",
-      key: "index",
-      render: (text, record, index) => index + 1,
-    },
-    {
-      title: "Thumbnail",
-      dataIndex: "img",
-      key: "img",
-      render: () => (
-        <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-          <span className="text-gray-500 text-xs">No Image</span>
-        </div>
+      title: "Action", key: "action",
+      render: (_, record) => (
+        <Popconfirm title="Delete this sub category?" okText="Yes" cancelText="No" onConfirm={() => handleDelete(record._id)}>
+          <Button type="primary" danger size="small">Delete</Button>
+        </Popconfirm>
       ),
-    },
-    {
-      title: "Category",
-      dataIndex: "title",
-      key: "category",
-      render: (title) => <Tag color="blue">{title}</Tag>,
-    },
-    {
-      title: "Name",
-      dataIndex: "title",
-      key: "title",
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: () => <Switch checked disabled />,
     },
   ];
 
   return (
-    <div className="flex">
+    <div className="flex bg-gray-100 min-h-screen">
       <Sidebar />
-      <div className="main-content" style={{ marginLeft: "250px", width: "calc(100% - 250px)" }}>
-        <div className="top-bar bg-white border-b p-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Sub Categories</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-gray-600">Admin</span>
+      <div style={{ marginLeft: "220px", width: "calc(100% - 220px)" }}>
+        <div className="bg-white border-b px-6 py-3 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+          <h1 className="text-xl font-bold text-gray-800">All Sub Categories</h1>
+          <div className="flex items-center gap-2 text-gray-600">
+            <UserOutlined />
+            <span className="text-sm font-medium">{user?.username || "Admin"}</span>
           </div>
         </div>
-
-        <div className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Sub Categories</h2>
-
-          <div className="bg-white p-4 rounded shadow">
-            <h3 className="text-lg font-medium mb-4">Sub Categories</h3>
+        <div className="p-5">
+          <div className="bg-white rounded shadow p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Sub Categories</h2>
+              <Button type="primary" onClick={() => navigate("/sub-categories/add")}>+ Add Sub Category</Button>
+            </div>
             {loading ? (
-              <div className="flex justify-center py-10">
-                <Spin size="large" />
-              </div>
+              <div className="flex justify-center py-10"><Spin size="large" /></div>
             ) : (
-              <Table
-                dataSource={categories}
-                columns={columns}
-                rowKey="_id"
-                pagination={{ pageSize: 10 }}
-              />
+              <Table dataSource={subCategories} columns={columns} rowKey="_id" pagination={{ pageSize: 10 }} />
             )}
           </div>
         </div>

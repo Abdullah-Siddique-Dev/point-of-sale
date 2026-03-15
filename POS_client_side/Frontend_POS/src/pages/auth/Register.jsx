@@ -1,4 +1,4 @@
-import { Button, Form, Input, Carousel, message } from "antd";
+import { Button, Form, Input, Carousel, message, Select } from "antd";
 import { Link } from "react-router-dom";
 import AuthCarousel from "../../components/auth/AuthCarousel";
 import { useNavigate } from "react-router-dom";
@@ -71,6 +71,17 @@ const Register = () => {
               ]}
             >
               <Input.Password />
+            </Form.Item>
+            <Form.Item
+              label="Role"
+              name={"role"}
+              initialValue="cashier"
+              rules={[{ required: true, message: "Please select a role!" }]}
+            >
+              <Select>
+                <Select.Option value="admin">Admin</Select.Option>
+                <Select.Option value="cashier">Cashier</Select.Option>
+              </Select>
             </Form.Item>
             <Form.Item
               label="Confirm Password"

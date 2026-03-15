@@ -11,6 +11,9 @@ const Edit = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [fileList, setFileList] = useState([]);
 
+  const user = JSON.parse(localStorage.getItem("postUser"));
+  const isAdmin = !user?.role || user?.role === "admin";
+
   const getBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -155,7 +158,7 @@ const Edit = () => {
       dataIndex: "action",
       width: "8%",
       render: (_, record) => {
-        return (
+        return isAdmin ? (
           <div>
             <Button
               type="text"
@@ -175,6 +178,8 @@ const Edit = () => {
               Delete
             </Button>
           </div>
+        ) : (
+          <span className="text-gray-400 text-xs">No access</span>
         );
       },
     },

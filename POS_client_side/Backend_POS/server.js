@@ -11,6 +11,7 @@ const port = process.env.PORT || 4000;
 
 //routes
 const categoryRoute = require("./routes/categories.js");
+const subCategoryRoute = require("./routes/subcategories.js");
 const productRoute = require("./routes/products.js");
 const invoiceRoute = require("./routes/invoices.js");
 const authRoute = require("./routes/auth.js");
@@ -27,10 +28,12 @@ const connect = async () => {
 
 //middlewares
 app.use(logger("dev"));
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(cors());
 
 app.use("/api/categories", categoryRoute);
+app.use("/api/subcategories", subCategoryRoute);
 app.use("/api/products", productRoute);
 app.use("/api/invoices", invoiceRoute);
 app.use("/api/auth", authRoute);
