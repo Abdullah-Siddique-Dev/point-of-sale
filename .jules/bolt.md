@@ -1,0 +1,3 @@
+## 2024-05-18 - React O(N²) Render Loop Anti-pattern
+**Learning:** Found a critical performance bottleneck in `DashboardPage.jsx` where `Math.max()` was being called over the entire array *inside* a `.map()` callback rendering the chart. This means for an array of N items, `Math.max` over N items is called N times, resulting in an O(N²) time complexity during React's render phase.
+**Action:** Always check loop contents for aggregate functions like `Math.max` or `reduce` that iterate over the same array. Hoist these calculations outside the `.map()` loop so they are calculated just once (O(N)), passing the result into the loop.
