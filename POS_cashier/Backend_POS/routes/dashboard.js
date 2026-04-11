@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const Invoice = require("../models/Invoice");
-const Purchase = require("../models/Purchase");
 const Product = require("../models/Product");
 const Tax = require("../models/Tax");
 
@@ -19,14 +18,13 @@ router.get("/stats", async (req, res) => {
     const lastMonth = new Date(today);
     lastMonth.setMonth(lastMonth.getMonth() - 1);
 
+    // ⚡ Bolt: Removed unused Purchase.find() and redundant Invoice.find() for todayTaxData
     // Fetch all data in parallel
     const [
       allInvoices,
       todayInvoices,
       lastMonthInvoices,
       allProducts,
-      allPurchases,
-      todayTaxData,
       monthTaxData,
       activeTax
     ] = await Promise.all([
@@ -34,8 +32,6 @@ router.get("/stats", async (req, res) => {
       Invoice.find({ createdAt: { $gte: today, $lt: tomorrow } }),
       Invoice.find({ createdAt: { $gte: lastMonth, $lt: today } }),
       Product.find(),
-      Purchase.find(),
-      Invoice.find({ createdAt: { $gte: today, $lt: tomorrow } }),
       Invoice.find({ createdAt: { $gte: new Date(today.getFullYear(), today.getMonth(), 1) } }),
       Tax.findOne({ status: true })
     ]);
@@ -51,7 +47,8 @@ router.get("/stats", async (req, res) => {
     const todayOrders = todayInvoices.length;
 
     // Tax calculations
-    const todayTax = todayTaxData.reduce((sum, inv) => sum + (inv.taxAmount || 0), 0);
+    // ⚡ Bolt: Reuse todayInvoices instead of running a separate identical query for todayTaxData
+    const todayTax = todayInvoices.reduce((sum, inv) => sum + (inv.taxAmount || 0), 0);
     const monthTax = monthTaxData.reduce((sum, inv) => sum + (inv.taxAmount || 0), 0);
 
     // Last month metrics for comparison
