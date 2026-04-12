@@ -6,10 +6,12 @@ const bcrypt = require("bcryptjs");
 //! register
 router.post("/register", async (req, res) => {
   try {
-    const { userName, email, password, role } = req.body;
+    const { userName, email, password } = req.body;
     const salt = await bcrypt.genSaltSync(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const newUser = new User({ userName, email, password: hashedPassword, role: role || "cashier" });
+    // 🛡️ Sentinel Security Fix: Prevent Mass Assignment (Privilege Escalation)
+    // Force role to "cashier" for open registrations to prevent malicious users from creating "admin" accounts
+    const newUser = new User({ userName, email, password: hashedPassword, role: "cashier" });
     await newUser.save();
     res.status(200).json("A new user created successfully");
   } catch (error) {
