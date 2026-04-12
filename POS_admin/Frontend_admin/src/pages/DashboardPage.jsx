@@ -464,14 +464,16 @@ const DashboardPage = () => {
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    {salesAnalytics.map((data, index) => {
+                    {(() => {
                       const maxSales = Math.max(...salesAnalytics.map(d => d.sales));
-                      const salesPercentage = maxSales > 0 ? (data.sales / maxSales) * 100 : 0;
                       const maxOrders = Math.max(...salesAnalytics.map(d => d.orders));
-                      const ordersPercentage = maxOrders > 0 ? (data.orders / maxOrders) * 100 : 0;
                       
-                      return (
-                        <div key={index} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                      return salesAnalytics.map((data, index) => {
+                        const salesPercentage = maxSales > 0 ? (data.sales / maxSales) * 100 : 0;
+                        const ordersPercentage = maxOrders > 0 ? (data.orders / maxOrders) * 100 : 0;
+
+                        return (
+                          <div key={index} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                           <div style={{ width: 80, fontSize: 13, fontWeight: 700, color: '#6b7280' }}>
                             {data.label}
                           </div>
@@ -522,8 +524,9 @@ const DashboardPage = () => {
                             </div>
                           </div>
                         </div>
-                      );
-                    })}
+                        );
+                      });
+                    })()}
                   </div>
                 )}
               </div>
