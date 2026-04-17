@@ -23,6 +23,10 @@ router.post("/add-subcategory", async (req, res) => {
 
 router.put("/update-subcategory", async (req, res) => {
   try {
+    // 🛡️ Sentinel Security Fix: Prevent NoSQL Injection
+    if (typeof req.body.subCategoryId !== 'string') {
+      return res.status(400).json({ error: 'Invalid ID format' });
+    }
     await SubCategory.findOneAndUpdate({ _id: req.body.subCategoryId }, req.body);
     res.status(200).json("Sub category updated successfully.");
   } catch (error) {
@@ -32,6 +36,10 @@ router.put("/update-subcategory", async (req, res) => {
 
 router.delete("/delete-subcategory", async (req, res) => {
   try {
+    // 🛡️ Sentinel Security Fix: Prevent NoSQL Injection
+    if (typeof req.body.subCategoryId !== 'string') {
+      return res.status(400).json({ error: 'Invalid ID format' });
+    }
     await SubCategory.findOneAndDelete({ _id: req.body.subCategoryId });
     res.status(200).json("Sub category deleted successfully.");
   } catch (error) {
