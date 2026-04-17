@@ -137,27 +137,28 @@ router.get("/stock", async (req, res) => {
     const purchases = await Purchase.find();
     const invoices = await Invoice.find();
 
+    // ⚡ Bolt: Replace O(n²) nested loops with O(n) hash map lookups
+    const purchaseMap = {};
+    purchases.forEach(purchase => {
+      purchase.items.forEach(item => {
+        const id = item.productId;
+        purchaseMap[id] = (purchaseMap[id] || 0) + item.quantity;
+      });
+    });
+
+    const salesMap = {};
+    invoices.forEach(invoice => {
+      invoice.cartItems.forEach(item => {
+        const id = item._id;
+        salesMap[id] = (salesMap[id] || 0) + item.quantity;
+      });
+    });
+
     // Calculate stock for each product
     const stockReport = products.map(product => {
-      // Calculate total purchased quantity
-      let totalPurchased = 0;
-      purchases.forEach(purchase => {
-        purchase.items.forEach(item => {
-          if (item.productId === product._id.toString()) {
-            totalPurchased += item.quantity;
-          }
-        });
-      });
-
-      // Calculate total sold quantity
-      let totalSold = 0;
-      invoices.forEach(invoice => {
-        invoice.cartItems.forEach(item => {
-          if (item._id === product._id.toString()) {
-            totalSold += item.quantity;
-          }
-        });
-      });
+      const pId = product._id.toString();
+      const totalPurchased = purchaseMap[pId] || 0;
+      const totalSold = salesMap[pId] || 0;
 
       // Current stock from database
       const currentStock = product.stock;
