@@ -5,7 +5,8 @@ const router = express.Router();
 //! get users
 router.get("/get-all", async (req, res) => {
   try {
-    const users = await User.find();
+    // SECURITY FIX: Do not expose password hashes in API response
+    const users = await User.find().select("-password");
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json(error);
@@ -16,7 +17,8 @@ router.get("/get-all", async (req, res) => {
 router.get("/", async (req, res) => {
   const userId = req.body.userId;
   try {
-    const user = await User.findById(userId);
+    // SECURITY FIX: Do not expose password hashes in API response
+    const user = await User.findById(userId).select("-password");
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json(error);
